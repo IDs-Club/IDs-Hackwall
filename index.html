@@ -1,13 +1,32 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta charset="UTF-8" />
-<title>黑客马拉松 杭州 2012</title>
-<link href="./style.css" rel='stylesheet' type='text/css'>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="./assets/style.css" rel='stylesheet' type='text/css'>
+<link rel="shortcut icon" href="./favicon.ico">
+<script src="./assets/jquery-1.8.3.min.js"></script>
+<title>IDs-Club</title>
 </head>
 <body>
-<div class="board"><span class="say"></span><div class="time"></div></div>
-<iframe src="./screen.html" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" border="0" width="100%"></iframe>
-<script src="./script.js"></script>
+	<div id="loading"><div></div></div>
+	<script type="text/javascript">
+	function getuser() {
+		var html;
+        $.getJSON('http://event-idsclub.ap01.aws.af.cm/index.php', function (data) {
+            if (data.status == 'ok') {
+            	html = '<div class="board"><span class="say">' + data.user.screen_name + '</span><span class="follow">粉丝（' + data.user.followers_count + '）</span><div class="time"></div></div>';
+            	html += '<iframe src="./screen.html" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" border="0" width="100%"></iframe>';
+            	html += '<script src="./assets/script.js"><\/script>';
+            }else if(data.status == 'unauthorized'){
+            	html = '<p><a href="' + data.code_url +'"><img src="./assets/weibo_login.png" title="点击进入授权页面" alt="点击进入授权页面" border="0" /></a></p>';
+            };
+            $('#loading').after(html);
+            $('#loading').remove();
+        });
+    }
+    $(function(){
+    	getuser();
+    })
+	</script>
 </body>
 </html>

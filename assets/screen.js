@@ -22,7 +22,7 @@
     }
 
     function getWeibo() {
-        $.getJSON('./proxy.php', function (comments) {
+        $.getJSON('http://event-idsclub.ap01.aws.af.cm/weibolist.php', function (comments) {
             if (comments && comments.length > 0) {
                 for (var i = 0; i < comments.length; i ++) {
                     var c = comments[i];
@@ -53,6 +53,7 @@
                         el = $('<div class="str" />').appendTo(document.body);
                         state = 1;
                         i = 0;
+                        str.text = str.user + ' : ' + str.text;
                     }
                     break;
                 case 1:
@@ -91,6 +92,6 @@
             }
 
             getWeibo();
-        }, 30000);
+        }, 15000);
     });
 })();

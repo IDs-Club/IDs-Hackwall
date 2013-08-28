@@ -1,0 +1,82 @@
+body {
+    background: #fff;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    font-family: "Source Code Pro";
+}
+
+.str {
+    color: #000;
+    width: 100%;
+    padding: 0 5px;
+    line-height: 35px;
+    font-size: 25px;
+    box-sizing: border-box;
+}
+
+.sp {
+    background-color: #189617;
+    display: inline-block;
+    width: 8px;
+    margin: 0 3px -3px 4px;
+    height: 16px;
+}
+
+.head {
+    color: #000;
+}
+
+.hide {
+    background: transparent;
+}
+
+.board {
+    width: 100%;
+    height: 55px;
+    line-height: 55px;
+    font-size: 35px;
+    background: #90d100;
+    color: #004f00;
+}
+.follow {
+    line-height: 55px;
+    font-size: 25px;
+    color: #004f00;
+    padding-left: 20px;
+}
+
+.time {
+    width: 100px;
+    line-height: 22px;
+    font-size: 18px;
+    padding-right: 10px;
+    padding-top: 8px;
+    float: right;
+    text-align: right;
+    font-weight: bold;
+}
+
+.say {
+    padding-left: 15px;
+}
+
+#loading{
+    background-position: 0 -108px;
+    cursor: pointer;
+    left: 50%;
+    margin-left: -22px;
+    margin-top: -22px;
+    opacity: 0.8;
+    position: fixed;
+    top: 50%;
+    z-index: 8060;
+    background-image: url("fancybox_sprite.png");
+}
+
+#loading div{
+    background: url("fancybox_loading.gif") no-repeat scroll center center transparent;
+    height: 44px;
+    width: 44px;
+}
+

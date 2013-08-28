@@ -80,3 +80,20 @@ body {
     width: 44px;
 }
 
+.center{
+    text-align: center;
+    padding-top: 40px;
+}
+
+table{
+    background-color: rgba(0, 0, 0, 0);
+    border-collapse: collapse;
+    border-spacing: 0;
+    max-width: 400px;
+}
+
+.table{
+    margin-bottom: 20px;
+    width: 100%;
+}
+

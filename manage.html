@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="./assets/style.css" rel='stylesheet' type='text/css'>
+<link rel="shortcut icon" href="./favicon.ico">
+<script src="./assets/jquery-1.8.3.min.js"></script>
+<title>IDs-Club</title>
+</head>
+<body>
+	<div id="loading"><div></div></div>
+	<script type="text/javascript">
+    var base_url = 'http://event-idsclub.ap01.aws.af.cm/';
+	function getlist() {
+		var html;
+        $.getJSON(base_url + 'list.php', function (data) {
+            if (data.status == 'ok') {
+                html = '<div class="center">已授权微博<table align="center" border="1" id="list" class="table"><thead><tr><th>微博名</th><th>操作</th></tr></thead><tbody class="contents">';
+                var len = $.map(data.lists, function(n, i) { return i; }).length;
+                if (len > 0) {
+                     $.each(data.lists, function (i, list) {
+                        if (list.if_use == 1) {
+                            html += '<tr><td>'+ list.weibo_nick +'</td><td><a class="cancel" href="javascript:;" id="'+ list.id +'">取消</a></td></tr>';
+                        }else{
+                            html += '<tr><td>'+ list.weibo_nick +'</td><td><a class="select" href="javascript:;" id="'+ list.id +'">选择</a></td></tr>';
+                        };
+                    });
+                 }
+                html += '</tbody></table></div>';
+            }else {
+                html = '<div class="center"><h3>Management Login</h3><form accept-charset="utf-8" method="post" action="'+ base_url +'list.php" id="login"><input type="text" name="email" placeholder="Email Address"><input type="password" name="password" placeholder="Password"><p><button class="btn submit" type="button">Sign in</button></p></form></div>';
+            };
+            $('#loading').after(html);
+            $('#loading').remove();
+        });
+    }
+    $(function(){
+    	getlist();
+
+        // 提交 验证
+        $('.submit').live('click', function(){
+            var obj = $(this);
+            $.ajax({
+                type : 'POST',
+                url : $('#login').attr('action'),
+                data : $('#login').serialize(),
+                dataType : 'json',
+                success : function(data){
+                    if (data.status == 'ok') {
+                        window.location.reload();
+                    }else{
+                        alert(data.msg);
+                    }
+                    return;
+                }
+            })
+        });
+
+        // 选择微博用户
+        $('a.cancel, a.select').live('click', function(){
+            var obj = $(this);
+            var type = 'select';
+            var item_id = obj.attr('id');
+            if (obj.hasClass('cancel')) { type = 'cancel'; }
+            $.ajax({
+                type : 'GET',
+                url : base_url + 'list.php?method=' + type + '&item_id=' + item_id,
+                dataType : 'json',
+                success : function(data){
+                    if (data.status == 'ok') {
+                        window.location.reload();
+                    }else{
+                        alert(data.msg);
+                    }
+                    return;
+                }
+            })
+        });
+    })
+	</script>
+</body>
+</html>

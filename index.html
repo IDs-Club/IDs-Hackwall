@@ -18,7 +18,7 @@
             	html += '<iframe src="./screen.html" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" border="0" width="100%"></iframe>';
             	html += '<script src="./assets/script.js"><\/script>';
             }else if(data.status == 'unauthorized'){
-            	html = '<p><a href="' + data.code_url +'"><img src="./assets/weibo_login.png" title="点击进入授权页面" alt="点击进入授权页面" border="0" /></a></p>';
+            	html = '<p class="center"><a href="' + data.code_url +'"><img src="./assets/weibo_login.png" title="点击进入授权页面" alt="点击进入授权页面" border="0" /></a></p>';
             };
             $('#loading').after(html);
             $('#loading').remove();

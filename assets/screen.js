@@ -26,6 +26,7 @@
     function getWeibo() {
         $.getJSON('http://event-idsclub.ap01.aws.af.cm/weibolist.php', function (comments) {
             if (comments && comments.length > 0) {
+                lines.length = 0;
                 for (var i = 0; i < comments.length; i ++) {
                     var c = comments[i];
 

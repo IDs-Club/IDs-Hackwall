@@ -54,6 +54,13 @@
                         state = 1;
                         i = 0;
                         str.text = str.user + ' : ' + str.text;
+                        if (str.origin != '') {
+                            if (str.origin.type == 1) {
+                                str.text += ' （转）@' + str.origin.user + ':' + str.origin.text;
+                            }else{
+                                str.text += ' （评）//@' + str.origin.user + ':' + str.origin.text;
+                            }
+                        };
                     }
                     break;
                 case 1:
@@ -61,9 +68,12 @@
                     el.html('<span class="head">' + settings.prefix + '</span>' + str.text.substring(0, i)).append(sp);
                     document.body.scrollTop = document.body.scrollHeight;
                     if (i >= str.text.length) {
+                        if (str.thumb != '') {
+                            el.append('<br><img src="'+ str.thumb +'">');
+                        }
                         state = 2;
                         j = 0;
-                    }
+                    };      
                     i ++;
                     break;
                 case 2:

@@ -20,7 +20,7 @@
                 if (len > 0) {
                      $.each(data.lists, function (i, list) {
                         if (list.if_use == 1) {
-                            html += '<tr><td>'+ list.weibo_nick +'</td><td><a class="cancel" href="javascript:;" id="'+ list.id +'">取消</a></td></tr>';
+                            html += '<tr><td>'+ list.weibo_nick +'</td><td><a class="cancel" href="javascript:;" id="'+ list.id +'">取消</a><a class="update" style="margin-left:10px;" href="javascript:;" id="'+ list.weibo_uid +'">删除缓存</a></td></tr>';
                         }else{
                             html += '<tr><td>'+ list.weibo_nick +'</td><td><a class="select" href="javascript:;" id="'+ list.id +'">选择</a></td></tr>';
                         };
@@ -57,11 +57,12 @@
         });
 
         // 选择微博用户
-        $('a.cancel, a.select').live('click', function(){
+        $('a.cancel, a.select, a.update').live('click', function(){
             var obj = $(this);
             var type = 'select';
             var item_id = obj.attr('id');
             if (obj.hasClass('cancel')) { type = 'cancel'; }
+            if (obj.hasClass('update')) { type = 'update'; }
             $.ajax({
                 type : 'GET',
                 url : base_url + 'list.php?method=' + type + '&item_id=' + item_id,

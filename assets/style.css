@@ -9,7 +9,7 @@ body {
 .str {
     color: #000;
     width: 100%;
-    padding: 0 5px;
+    padding: 5px 5px;
     line-height: 35px;
     font-size: 25px;
     box-sizing: border-box;
@@ -25,6 +25,12 @@ body {
 
 .head {
     color: #000;
+}
+.str img{
+    max-width: 60%;
+    max-height: 216px;
+    margin-left: 20%;
+    padding-bottom: 10px;
 }
 
 .hide {

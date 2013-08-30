@@ -26,7 +26,7 @@ body {
 .head {
     color: #000;
 }
-.WB_detail img{
+.WB_detail .thumb{
     max-width: 60%;
     max-height: 216px;
     margin-left: 20%;

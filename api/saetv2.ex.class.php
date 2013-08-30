@@ -1,9 +1,4 @@
 <?php
-
-define('API_KEY', '');
-define('API_SECRET', '');
-define('API_TOKEN', '');
-
 /**
  * PHP SDK for weibo.com (using OAuth2)
  * 
@@ -13,7 +8,7 @@ define('API_TOKEN', '');
 /**
  * @ignore
  */
-class SaeOAuthException extends Exception {
+class OAuthException extends Exception {
 	// pass
 }
 
@@ -81,7 +76,7 @@ class SaeTOAuthV2 {
 	 */
 	public $ssl_verifypeer = FALSE;
 	/**
-	 * Response format.
+	 * Respons format.
 	 *
 	 * @ignore
 	 */
@@ -196,16 +191,16 @@ class SaeTOAuthV2 {
 			$params['username'] = $keys['username'];
 			$params['password'] = $keys['password'];
 		} else {
-			throw new SaeOAuthException("wrong auth type");
+			throw new OAuthException("wrong auth type");
 		}
 
 		$response = $this->oAuthRequest($this->accessTokenURL(), 'POST', $params);
 		$token = json_decode($response, true);
 		if ( is_array($token) && !isset($token['error']) ) {
 			$this->access_token = $token['access_token'];
-			$this->refresh_token = $token['refresh_token'];
+			//$this->refresh_token = $token['refresh_token'];
 		} else {
-			throw new SaeOAuthException("get access token failed." . $token['error']);
+			throw new OAuthException("get access token failed." . $token['error']);
 		}
 		return $token;
 	}
@@ -283,13 +278,7 @@ class SaeTOAuthV2 {
 	function get($url, $parameters = array()) {
 		$response = $this->oAuthRequest($url, 'GET', $parameters);
 		if ($this->format === 'json' && $this->decode_json) {
-			$result = json_decode($response, true);
-
-            if (isset($result['error_code'])) {
-                throw new SaeOAuthException($result['error'], $result['error_code']);
-            }
-
-            return $result;
+			return json_decode($response, true);
 		}
 		return $response;
 	}
@@ -302,13 +291,7 @@ class SaeTOAuthV2 {
 	function post($url, $parameters = array(), $multi = false) {
 		$response = $this->oAuthRequest($url, 'POST', $parameters, $multi );
 		if ($this->format === 'json' && $this->decode_json) {
-			$result = json_decode($response, true);
-
-            if (isset($result['error_code'])) {
-                throw new SaeOAuthException($result['error'], $result['error_code']);
-            }
-
-            return $result;
+			return json_decode($response, true);
 		}
 		return $response;
 	}
@@ -371,6 +354,7 @@ class SaeTOAuthV2 {
 		curl_setopt($ci, CURLOPT_RETURNTRANSFER, TRUE);
 		curl_setopt($ci, CURLOPT_ENCODING, "");
 		curl_setopt($ci, CURLOPT_SSL_VERIFYPEER, $this->ssl_verifypeer);
+		curl_setopt($ci, CURLOPT_SSL_VERIFYHOST, 1);
 		curl_setopt($ci, CURLOPT_HEADERFUNCTION, array($this, 'getHeader'));
 		curl_setopt($ci, CURLOPT_HEADER, FALSE);
 
@@ -392,7 +376,17 @@ class SaeTOAuthV2 {
 		if ( isset($this->access_token) && $this->access_token )
 			$headers[] = "Authorization: OAuth2 ".$this->access_token;
 
-		$headers[] = "API-RemoteIP: " . $_SERVER['REMOTE_ADDR'];
+		if ( !empty($this->remote_ip) ) {
+			if ( defined('SAE_ACCESSKEY') ) {
+				$headers[] = "SaeRemoteIP: " . $this->remote_ip;
+			} else {
+				$headers[] = "API-RemoteIP: " . $this->remote_ip;
+			}
+		} else {
+			if ( !defined('SAE_ACCESSKEY') ) {
+				$headers[] = "API-RemoteIP: " . $_SERVER['REMOTE_ADDR'];
+			}
+		}
 		curl_setopt($ci, CURLOPT_URL, $url );
 		curl_setopt($ci, CURLOPT_HTTPHEADER, $headers );
 		curl_setopt($ci, CURLINFO_HEADER_OUT, TRUE );
@@ -406,10 +400,13 @@ class SaeTOAuthV2 {
 			echo "=====post data======\r\n";
 			var_dump($postfields);
 
-			echo '=====info====='."\r\n";
+			echo "=====headers======\r\n";
+			print_r($headers);
+
+			echo '=====request info====='."\r\n";
 			print_r( curl_getinfo($ci) );
 
-			echo '=====$response====='."\r\n";
+			echo '=====response====='."\r\n";
 			print_r( $response );
 		}
 		curl_close ($ci);
@@ -497,6 +494,39 @@ class SaeTClientV2
 	function __construct( $akey, $skey, $access_token, $refresh_token = NULL)
 	{
 		$this->oauth = new SaeTOAuthV2( $akey, $skey, $access_token, $refresh_token );
+	}
+
+	/**
+	 * 开启调试信息
+	 *
+	 * 开启调试信息后，SDK会将每次请求微博API所发送的POST Data、Headers以及请求信息、返回内容输出出来。
+	 *
+	 * @access public
+	 * @param bool $enable 是否开启调试信息
+	 * @return void
+	 */
+	function set_debug( $enable )
+	{
+		$this->oauth->debug = $enable;
+	}
+
+	/**
+	 * 设置用户IP
+	 *
+	 * SDK默认将会通过$_SERVER['REMOTE_ADDR']获取用户IP，在请求微博API时将用户IP附加到Request Header中。但某些情况下$_SERVER['REMOTE_ADDR']取到的IP并非用户IP，而是一个固定的IP（例如使用SAE的Cron或TaskQueue服务时），此时就有可能会造成该固定IP达到微博API调用频率限额，导致API调用失败。此时可使用本方法设置用户IP，以避免此问题。
+	 *
+	 * @access public
+	 * @param string $ip 用户IP
+	 * @return bool IP为非法IP字符串时，返回false，否则返回true
+	 */
+	function set_remote_ip( $ip )
+	{
+		if ( ip2long($ip) !== false ) {
+			$this->oauth->remote_ip = $ip;
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -1092,7 +1122,7 @@ class SaeTClientV2
 		$params = array();
 		$params['status'] = $status;
 		$params['url'] = $url;
-		return $this->oauth->post( 'statuses/upload_url_text', $params);
+		return $this->oauth->post( 'statuses/upload', $params, true );
 	}
 
 
@@ -3236,36 +3266,3 @@ class SaeTClientV2
 	}
 
 }
-
-
-$clientHA = new SaeTClientV2(API_KEY, API_TOKEN, API_SECRET);
-
-header('Content-Type: application/json; charset=UTF-8');
-$commentsHA = $clientHA->comments_mentions();
-$statusesHA = $clientHA->mentions();
-
-$result = array_map(function ($s) {
-    return array(
-        'text'      =>  $s['text'],
-        'user'      =>  $s['user']['screen_name'],
-        'source'    =>  'hackathon'
-    );
-}, array_merge($commentsHA['comments'], $statusesHA['statuses']));
-
-$exists = array();
-$result = array_filter($result, function ($s) use (&$exists) {
-    if (in_array($s['text'], $exists)) {
-        return false;
-    }
-
-    list ($repost) = array_map('trim', explode('//', $s['text']));
-    if (empty($repost)) {
-        return false;
-    }
-
-    $exists[] = $s['text'];
-    return true;
-});
-
-echo json_encode(array_values($result));
-

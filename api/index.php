@@ -7,6 +7,7 @@ include_once( 'saetv2.ex.class.php' );
 require_once('db_lib.php');
 $oDB = new db;
 
+// 获取当前选择的授权用户
 $result = $oDB->select("SELECT * FROM weibo_binding WHERE if_use = 1 ");
 if (mysqli_num_rows($result)) 
 {
@@ -26,6 +27,8 @@ if (mysqli_num_rows($result))
 		'screen_name' => $user_message['screen_name'], 
 		'followers_count' => $user_message['followers_count']
 		);
+
+	// 重设微博更新时间
 	$oDB->update('weibo_update', "weibo_uid = $weibo_uid", "last_comment = 0, last_statuse = 0, last_comm_me = 0, last_weibo = 0 ");
 
 	echo json_encode(array('status' => 'ok', 'user' => $user));
